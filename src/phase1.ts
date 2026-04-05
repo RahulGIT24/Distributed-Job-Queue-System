@@ -1,10 +1,10 @@
-type Message = {
+export type Message = {
     id: number,
     task: string
 }
 
 
-const messages: Message[] = []
+export const messages: Message[] = []
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 const producer = async () => {
