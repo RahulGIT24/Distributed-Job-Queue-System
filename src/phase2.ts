@@ -1,7 +1,7 @@
 import { consumer, producer } from "./lib/redis";
 import { Message } from "./phase1";
 
-const delayFn = (ms: number) => new Promise(res => setTimeout(res, ms));
+export const delayFn = (ms: number) => new Promise(res => setTimeout(res, ms));
 const QUEUE_NAME = "distributed_queue"
 
 async function producer1() {
@@ -33,5 +33,5 @@ async function consumer1() {
 }
 
 
-producer1();
-consumer1();
+// producer1();
+// consumer1();

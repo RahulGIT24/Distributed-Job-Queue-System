@@ -1,0 +1,39 @@
+import { janitorRedis } from "./redis";
+
+const QUEUE_PENDING = "queue:pending";
+const QUEUE_PROCESSING = "queue:processing";
+
+const STALL_TIMEOUT = 5 * 60 * 1000; // 5 mins
+
+async function runJanitor() {
+    console.log("[Janitor] Started. Looking for Jobs.")
+
+    setInterval(async () => {
+        const now = Date.now();
+        const threshold = now - STALL_TIMEOUT;
+
+        const stuckTasks = await janitorRedis.zrange(
+            QUEUE_PROCESSING, 0, threshold, "BYSCORE"
+        )
+
+        if (stuckTasks.length == 0) {
+            return; // every task is fine
+        }
+
+        console.log(`[Janitor] Found ${stuckTasks.length} tasks. Pushing Now in Pending Queue`)
+
+        for (const taskString of stuckTasks) {
+            const task = JSON.parse(taskString);
+
+            // works for multiple janitor instance
+            const removedCount = await janitorRedis.zrem(QUEUE_PROCESSING, taskString);
+            if (removedCount === 1) {
+                task.retries += 1
+                const updatedTaskString = JSON.stringify(task);
+                await janitorRedis.lpush(QUEUE_PENDING, updatedTaskString);
+                console.log(`🧹 [Janitor] Rescued ${task.id}.`);
+            }
+        }
+
+    }, 10000)
+}

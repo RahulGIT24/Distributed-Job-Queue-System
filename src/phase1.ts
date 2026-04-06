@@ -1,4 +1,4 @@
-export type Message = {
+export interface Message{
     id: number,
     task: string
 }
@@ -37,5 +37,5 @@ const consumer = async () => {
     }
 }
 
-producer();
-consumer();
+// producer();
+// consumer();
