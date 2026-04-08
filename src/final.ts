@@ -14,6 +14,19 @@ interface extendedTask extends Message {
 }
 const MAX_RETRIES = 3;
 
+// lua script for making brpop and zadd atomic in consumer
+consumer.defineCommand("popToProcessing", {
+    numberOfKeys: 2,
+    lua: `
+        local task = redis.call('RPOP', KEYS[1])
+        if task then
+            redis.call('ZADD', KEYS[2], ARGV[1], task)
+            return task
+        end
+        return nil
+    `
+});
+
 const reliableProducer = async () => {
     let counter = 0;
 
@@ -41,18 +54,22 @@ const reliableConsumer = async () => {
         // const taskString = await consumer.blmove(
         //     QUEUE_PENDING, QUEUE_PROCESSING, "RIGHT", "LEFT", 0
         // );
+        const startTime = Date.now();
 
         // instead of BLMOVE one should use zsets it will help janitor to recover stuck tasks without allowing duplication based on score value
-        // for that purpose I am sacrificing atomicity for now
-        const result = await consumer.brpop(QUEUE_PENDING, 0);
+        // Now lua script have made that operation atomic
 
-        if (result) {
-            const taskString = result[1];
+        // @ts-ignore
+        const taskString = await consumer.popToProcessing(
+            QUEUE_PENDING, 
+            QUEUE_PROCESSING, 
+            startTime
+        );
+
+        if (taskString) {
             const task = JSON.parse(taskString);
             console.log(`[Consumer] Processing: ${task.id}`);
-            const startTime = Date.now()
 
-            await consumer.zadd(QUEUE_PROCESSING, startTime, taskString);
             const heartbeatTimer = setInterval(async () => {
                 try {
                     // Overwrite the old score with the new current time
@@ -94,5 +111,5 @@ const reliableConsumer = async () => {
     }
 }
 
-reliableProducer();
-reliableConsumer();
+// reliableProducer();
+// reliableConsumer();
