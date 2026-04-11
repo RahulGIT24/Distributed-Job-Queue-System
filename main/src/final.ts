@@ -1,10 +1,11 @@
 import { consumer, producer } from "./lib/redis";
 import { Message } from "./phase1";
 import { delayFn } from "./phase2";
+import 'dotenv/config'
 
-const QUEUE_PENDING = "queue:pending";
-const QUEUE_PROCESSING = "queue:processing";
-const QUEUE_DLQ = "queue:dead_letters";
+const QUEUE_PENDING = process.env.QUEUE_PENDING!;
+const QUEUE_PROCESSING = process.env.QUEUE_PROCESSING!;
+const QUEUE_DLQ = process.env.QUEUE_DLQ!
 
 
 const HEARTBEAT_INTERVAL = 30 * 1000;
@@ -47,7 +48,7 @@ const reliableProducer = async () => {
     }
 }
 
-const reliableConsumer = async () => {
+export const reliableConsumer = async () => {
     console.log("[CONSUMER] Connected. Waiting for reliable connections.");
     while (true) {
         // use BLMOVE to atomically pop and push to processing queue
