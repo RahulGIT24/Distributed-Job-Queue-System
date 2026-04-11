@@ -62,8 +62,8 @@ export const reliableConsumer = async () => {
 
         // @ts-ignore
         const taskString = await consumer.popToProcessing(
-            QUEUE_PENDING, 
-            QUEUE_PROCESSING, 
+            QUEUE_PENDING,
+            QUEUE_PROCESSING,
             startTime
         );
 
@@ -82,7 +82,15 @@ export const reliableConsumer = async () => {
             }, HEARTBEAT_INTERVAL);
 
             try {
-                await delayFn(3500);
+                const pendingCount = await consumer.llen(QUEUE_PENDING);
+                const processingCount = await consumer.zcard(QUEUE_PROCESSING);
+
+                if (pendingCount === 0 && processingCount === 0) {
+                    console.log("************************************************");
+                    console.log(`BENCHMARK COMPLETE AT: ${new Date().toISOString()}`);
+                    console.log("************************************************");
+                }
+                await delayFn(1);
 
                 // if failure happens here the task will be stuck in queue:processing
                 if (Math.random() < 0.2) {

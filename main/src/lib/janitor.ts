@@ -1,9 +1,10 @@
 import { janitorRedis } from "./redis";
+import 'dotenv/config'
 
-const QUEUE_PENDING = "queue:pending";
-const QUEUE_PROCESSING = "queue:processing";
+const QUEUE_PENDING = process.env.QUEUE_PENDING!;
+const QUEUE_PROCESSING = process.env.QUEUE_PROCESSING!;
 
-const STALL_TIMEOUT = 5 * 60 * 1000; // 5 mins
+const STALL_TIMEOUT = 5 * 60 * 1000;
 
 async function runJanitor() {
     console.log("[Janitor] Started. Looking for Jobs.")
@@ -37,3 +38,5 @@ async function runJanitor() {
 
     }, 10000)
 }
+
+runJanitor()
