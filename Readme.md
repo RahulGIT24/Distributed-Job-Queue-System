@@ -63,7 +63,7 @@ Using the API Control Panel, all 22 tasks in the Dead Letter Queue were reset an
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/yourusername/distributed-queue.git](https://github.com/RahulGIT24/distributed-queue.git)
+   git clone [https://github.com/RahulGIT24/Distributed-Job-Queue-System](https://github.com/RahulGIT24/Distributed-Job-Queue-System)
    cd main
     ```
 
