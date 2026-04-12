@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import { producer } from "../lib/redis"
+import { runBenchmark } from "../benchmark/tasks"
 
 const pending_queue = process.env.QUEUE_PENDING!
 const processing_queue = process.env.QUEUE_PROCESSING!
@@ -53,7 +54,6 @@ const retryDLQTasks = async (req: Request, res: Response) => {
 const pushTask = async(req:Request,res:Response)=>{
     try {
         const { taskName } = req.body;
-        
         const newTask = {
             id: `manual-${Date.now()}`,
             task: taskName || "Manual Override Task",
@@ -68,4 +68,13 @@ const pushTask = async(req:Request,res:Response)=>{
     }
 }
 
-export { getApiStats, getFailedTasks, retryDLQTasks,pushTask }
+const stressTest = async(req:Request,res:Response)=>{
+    try {
+        await runBenchmark()
+        res.json({ message: "Stress test injected successfully"});
+    } catch (error) {
+        res.status(500).json({ error: "Failed to run benchmark" });
+    }
+}
+
+export { getApiStats, getFailedTasks, retryDLQTasks,pushTask,stressTest }

@@ -20,6 +20,16 @@ export default function QueueDashboard() {
     }
     setLoading(false);
   };
+  const stressSystem = async () => {
+    setLoading(true);
+    try {
+      await fetch('http://localhost:5002/api/stress',{method:'POST'});
+      fetchDashboardData()
+    } catch (error) {
+      console.error("Failed to fetch queue data", error);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
     fetchDashboardData();
@@ -61,6 +71,9 @@ export default function QueueDashboard() {
           </button>
           <button onClick={fetchDashboardData} className="px-4 py-2 border rounded">
             Refresh
+          </button>
+          <button onClick={stressSystem} className="px-4 py-2 border rounded bg-green-600 text-white">
+            Stress Test System
           </button>
         </div>
       </div>

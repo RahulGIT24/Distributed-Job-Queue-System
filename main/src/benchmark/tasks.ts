@@ -4,7 +4,7 @@ import 'dotenv/config';
 const QUEUE_PENDING = process.env.QUEUE_PENDING!
 const TOTAL_TASKS = 10000; 
 
-async function runBenchmark() {
+export async function runBenchmark() {
     console.log(`Starting Benchmark: Pushing ${TOTAL_TASKS} tasks...`);
     const start = Date.now();
 
@@ -21,7 +21,5 @@ async function runBenchmark() {
 
     const end = Date.now();
     console.log(`Finished pushing ${TOTAL_TASKS} tasks in ${end - start}ms`);
-    process.exit(0);
 }
 
-runBenchmark();
