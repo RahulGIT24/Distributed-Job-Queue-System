@@ -14,6 +14,7 @@ interface extendedTask extends Message {
     retries: number,
 }
 const MAX_RETRIES = 3;
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 // lua script for making brpop and zadd atomic in consumer
 consumer.defineCommand("popToProcessing", {
@@ -100,6 +101,7 @@ export const reliableConsumer = async () => {
 
                 // now we will remove from zset after processing
                 await consumer.zrem(QUEUE_PROCESSING, taskString);
+                delay(2000)
 
                 // await consumer.lrem(QUEUE_PROCESSING, taskString, 1);
             } catch (error) {
