@@ -8,11 +8,11 @@ export default function QueueDashboard() {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const statsRes = await fetch('http://localhost:5002/api/stats');
+      const statsRes = await fetch(`${import.meta.env.VITE_API_URL}/stats`);
       const statsData = await statsRes.json();
       setStats(statsData);
 
-      const dlqRes = await fetch('http://localhost:5002/api/dlq');
+      const dlqRes = await fetch(`${import.meta.env.VITE_API_URL}/dlq`);
       const dlqData = await dlqRes.json();
       setDlqTasks(dlqData.tasks);
     } catch (error) {
@@ -29,7 +29,7 @@ export default function QueueDashboard() {
 
   const handleRetryDlq = async () => {
     try {
-      await fetch('http://localhost:5002/api/dlq/retry', { method: 'POST' });
+      await fetch(`${import.meta.env.VITE_API_URL}/dlq/retry`, { method: 'POST' });
       fetchDashboardData(); 
     } catch (error) {
       console.error("Failed to retry tasks", error);
@@ -38,7 +38,7 @@ export default function QueueDashboard() {
 
   const handleInjectTask = async () => {
     try {
-      await fetch('http://localhost:5002/api/tasks', {
+      await fetch(`${import.meta.env.VITE_API_URL}/tasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ taskName: "Manual UI Trigger" })
