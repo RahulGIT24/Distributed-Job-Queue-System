@@ -101,7 +101,7 @@ export const reliableConsumer = async () => {
 
                 // now we will remove from zset after processing
                 await consumer.zrem(QUEUE_PROCESSING, taskString);
-                delay(2000)
+                await delay(2000)
 
                 // await consumer.lrem(QUEUE_PROCESSING, taskString, 1);
             } catch (error) {
