@@ -1,8 +1,14 @@
 import  { useState, useEffect } from 'react';
 
+interface Task{
+  id:number,
+  task:string,
+  retries:number
+}
+
 export default function QueueDashboard() {
   const [stats, setStats] = useState({ pendingCount: 0, processingCount: 0, dlqCount: 0 });
-  const [dlqTasks, setDlqTasks] = useState([]);
+  const [dlqTasks, setDlqTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = async () => {
@@ -22,7 +28,11 @@ export default function QueueDashboard() {
   };
 
   useEffect(() => {
-    fetchDashboardData();
+    (
+      async function(){
+        await fetchDashboardData()
+      }()
+    )
     const interval = setInterval(fetchDashboardData, 5000);
     return () => clearInterval(interval);
   }, []);
