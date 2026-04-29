@@ -45,7 +45,7 @@ const reliableProducer = async () => {
         await producer.lpush(QUEUE_PENDING, taskString);
 
         console.log("[PRODUCED TASK] of Id " + task.id);
-        await delayFn(3000)
+        await delayFn(100)
     }
 }
 
@@ -91,7 +91,7 @@ export const reliableConsumer = async () => {
                     console.log(`BENCHMARK COMPLETE AT: ${new Date().toISOString()}`);
                     console.log("************************************************");
                 }
-                await delayFn(1);
+                await delayFn(10000);
 
                 // if failure happens here the task will be stuck in queue:processing
                 if (Math.random() < 0.2) {
