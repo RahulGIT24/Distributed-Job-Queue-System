@@ -1,5 +1,7 @@
 # Distributed Fault-Tolerant Task Queue
 
+![CI](https://github.com/RahulGIT24/Distributed-Job-Queue-System/actions/workflows/ci.yml/badge.svg)
+
 A high-performance, horizontally scalable, and fault-tolerant distributed task queue built from scratch using **Node.js**, **Redis**, and **Lua Scripting**. Designed to handle high-concurrency background job processing with strict **at-least-once delivery guarantees**, automated dead-letter routing, and real-time observability.
 
 ## Architecture & System Design
@@ -112,3 +114,38 @@ Using the API Control Panel, all 22 tasks in the Dead Letter Queue were reset an
     pnpm run start
     ```
 11. Open the dashboard at `http://localhost:5173` to monitor the queue in real-time.
+
+---
+
+## ✅ Testing
+
+The backend (`main/`) has two test suites:
+
+* **Unit tests** — mock the Redis client, so they run offline with no external services. They cover the observability API (`apiController`), the Express route wiring (`app`), and the Janitor's stale-task sweep logic (`sweepStuckTasks`).
+* **Integration tests** — run against a real Redis instance to verify behavior that can't be faithfully mocked, most importantly the atomicity of the `popToProcessing` Lua script (the `RPOP` + `ZADD` combo that makes task acquisition crash-safe), plus the full HTTP → controller → Redis path.
+
+```bash
+cd main
+
+# Unit tests (no Redis required)
+pnpm test
+
+# Integration tests (requires a reachable Redis, see REDIS_HOST/REDIS_PORT)
+pnpm run test:integration
+
+# Watch mode for unit tests
+pnpm run test:watch
+```
+
+Integration tests use dedicated `*:ci`/`*:test`-style Redis keys (overridable via `QUEUE_PENDING`, `QUEUE_PROCESSING`, `QUEUE_DLQ` env vars) so they never touch your real development queues, and clean up after themselves.
+
+The frontend (`client/`) is checked via `pnpm run lint` and a production `pnpm run build`.
+
+## 🔁 Continuous Integration
+
+Every push and pull request to `main`/`master` runs via [GitHub Actions](./.github/workflows/ci.yml):
+
+* **Backend job** — spins up a `redis:7-alpine` service container, installs dependencies, type-checks and builds the TypeScript, then runs the unit and integration test suites.
+* **Frontend job** — installs dependencies, lints, and builds the React dashboard.
+
+A PR can't merge with a red build, which keeps the atomic task-acquisition guarantees and the API contract from silently regressing.

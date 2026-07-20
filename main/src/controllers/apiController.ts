@@ -42,6 +42,7 @@ const retryDLQTasks = async (req: Request, res: Response) => {
             const task = JSON.parse(taskString);
             task.retries = 0; // resetting retries for a fair shot
             await producer.lpush(pending_queue, JSON.stringify(task));
+            count++;
             taskString = await producer.rpop(dead_letter);
         }
         res.json({ message: `Successfully re-queued ${count} tasks.` });
